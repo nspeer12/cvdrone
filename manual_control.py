@@ -26,7 +26,7 @@ def on_press(key):
 			print('land')
 			drone.land()
 
-		elif key.char == 'e':
+		elif key.char == 't':
 			print('takeoff')
 			drone.takeoff()
 
@@ -37,6 +37,13 @@ def on_press(key):
 		elif key.char == 'f':
 			print('down')
 			drone.down(25)
+
+		elif key.char == 'z':
+			print('clockwise 90 degrees')
+			drone.cw(90)
+		elif key.char == 'x':
+			print('counter clockwise 90 degrees')
+			drone.ccw(90)
 
 	except AttributeError:
 		return
@@ -81,7 +88,14 @@ def main():
 
 	fly = True
 	while fly:
-		fly = True
+		log =[drone.get_time(),
+			drone.get_battery(),
+			drone.get_height(),
+			drone.get_acceleration(),
+			drone.get_attitude(),
+			drone.get_tof(),
+			drone.get_baro()]
+		print(log)
 
 if __name__=='__main__':
 	# initialize drone
@@ -90,4 +104,4 @@ if __name__=='__main__':
 	print(drone.tello_port)
 	#drone.takeoff()
 	drone.streamon()
-	#main()
+	main()
