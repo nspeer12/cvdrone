@@ -3,7 +3,7 @@ from camera import *
 import cv2
 
 def main():
-	stream()
+	stream(detect=True)
 
 if __name__ == '__main__':
 	main()

@@ -10,13 +10,13 @@ import glob
 import os
 import threading
 from multiprocessing import Pool
-
-model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+from torchvision import transforms
+model = torchvision.models.mobilenet_v2(pretrained=True)
 
 model.eval()
 
 # define the objects that we can detect
-COCO_INSTANCE_CATEGORY_NAMES = [
+classes  = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
     'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -31,25 +31,27 @@ COCO_INSTANCE_CATEGORY_NAMES = [
     'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
+# Defing PyTorch Transform
+preprocess = transforms.Compose([
+	transforms.Resize(256),
+	transforms.CenterCrop(224),
+	transforms.ToTensor(),
+	transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+	
 
 def get_prediction(frame, threshold):
-	transform = T.Compose([T.ToTensor()]) # Defing PyTorch Transform
-	img = transform(frame) # Apply the transform to the images
-	pred = model([img]) # Pass the image to the model
-	pred_class = [COCO_INSTANCE_CATEGORY_NAMES[i] for i in list(pred[0]['labels'].numpy())] # Get the Prediction
-	pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
-	pred_score = list(pred[0]['scores'].detach().numpy())
-
-	# make predictions on the image
-	# this line of code is a bitch. Need to fix
-	try:
-		pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1] # Get list of index with score greater than threshold.
-	except:
-		return None, None
-
-	pred_boxes = pred_boxes[:pred_t+1]
-	pred_class = pred_class[:pred_t+1]
-	return pred_boxes, pred_class
+	img = Image.fromarray(frame)
+	img = preprocess(img) # Apply the transform to the images
+	img = img.unsqueeze(0)
+	pred = model(img) # Pass the image to the model
+	_, indices = torch.sort(pred, descending=True)
+	print(indices[0][:1])
+	#print(str(idx) + ' ' for idx in indices[0][:5])
+	#preds = [(classes[idx], percentage[idx].item()) for idx in indices[0][:5]]
+	#pred_boxes = pred_boxes[:pred_t+1]
+	#pred_class = pred_class[:pred_t+1]
+	return None, None
 
 
 

@@ -18,16 +18,22 @@ def record_video(filename, mode = 'r'):
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
-def stream(mode = None):
+def stream(record = False, detect = False):
 	i = 0
 	filename = 'stream/frame'
+
 	while(True):
 		ret, frame = cap.read()
-		frame = detect_frame(frame)
+	
+		if detect:
+			frame = detect_frame(frame)
+	
 		cv2.imshow('video', frame)
-		if( mode == 'r'):
+	
+		if record:
 			cv2.imwrite(filename + str(i) + '.jpg', frame)
 			i += 1
+	
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
